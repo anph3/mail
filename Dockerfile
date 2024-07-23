@@ -14,7 +14,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 EXPOSE 80
 
 # Define environment variable
-ENV GMAIL_APP_PASSWORD=your_app_password
+ENV MAIL_PASSWORD=your_app_password
 
 # Run app.py when the container launches
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
