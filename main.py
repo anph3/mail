@@ -16,11 +16,11 @@ class EmailCallBack(EmailSchema):
     url_callback: str
 
 
-def send_email_background(subject: str, email: str, message: str, url_callback: str = ''):
+def send_email_background(subject: str, email: str, message: str):
     try:
         sender_email =  "haidangkhtn@gmail.com"
         receiver_email = email
-        password =os.getenv("MAIL_PASSWORD", "lnireuwgpxbeauht")
+        password =os.getenv("MAIL_PASSWORD", "")
 
         # Create a multipart message and set headers
         msg = MIMEMultipart()
@@ -29,7 +29,7 @@ def send_email_background(subject: str, email: str, message: str, url_callback: 
         msg["Subject"] = subject
 
         # Add body to email
-        msg.attach(MIMEText(f"{message} <br/><a href=\"{url_callback}\">Link</a>", "html"))
+        msg.attach(MIMEText(message, "html"))
 
         # Log in to server using secure context and send email
         server = smtplib.SMTP_SSL("smtp.gmail.com", 465)
@@ -42,7 +42,7 @@ def send_email_background(subject: str, email: str, message: str, url_callback: 
 
 @app.post("/send-email/")
 async def send_email(email: EmailCallBack, background_tasks: BackgroundTasks):
-    background_tasks.add_task(send_email_background, email.subject, email.email, email.message, email.url_callback)
+    background_tasks.add_task(send_email_background, email.subject, email.email, f"{email.message} <br/><a href=\"{url_callback}\">Link</a>", email.url_callback)
     return {"message": "Email has been sent"}
 
 @app.post("/process-json/")
