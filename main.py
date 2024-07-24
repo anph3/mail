@@ -42,7 +42,7 @@ def send_email_background(subject: str, email: str, message: str):
 
 @app.post("/send-email/")
 async def send_email(email: EmailCallBack, background_tasks: BackgroundTasks):
-    background_tasks.add_task(send_email_background, email.subject, email.email, f"{email.message} <br/><a href=\"{url_callback}\">Link</a>", email.url_callback)
+    background_tasks.add_task(send_email_background, email.subject, email.email, f"{email.message} <br/><a href=\"{email.url_callback}\">Link</a>", email.url_callback)
     return {"message": "Email has been sent"}
 
 @app.post("/process-json/")
