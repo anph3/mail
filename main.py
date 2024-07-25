@@ -39,19 +39,43 @@ def send_email_background(subject: str, email: str, message: str):
     except Exception as e:
         print(f"Error sending email: {e}")
 
+def call_api_mautic(contact_id: int):
+    try:
+        url = f"https://mautic.mypt.vn/api/contacts/{contact_id}/edit"
+        headers = {
+            "Authorization": os.getenv("MAUTIC_KEY", "") # "Basic YWRtaW46YWU3OWIwOGEyNmY5Yw==",
+            "Content-Type": "application/json",
+            "Cookie": "mautic_device_id=gq1v47mk8jkaabp4wkl9e9z"
+        }
+        data = {
+            "send_email": "đã gửi email đến KHG"
+        }
+
+        response = requests.patch(url, headers=headers, json=data)
+
+        if response.status_code != 200:
+            print(HTTPException(status_code=response.status_code, detail="Error sending email"))
+
+        print( {"message": "Email sent successfully"})
+    except Exception as e:
+        print(e)
+
 
 @app.post("/send-email/")
 async def send_email(email: EmailCallBack, background_tasks: BackgroundTasks):
     background_tasks.add_task(send_email_background, email.subject, email.email, f"{email.message} <br/><a href=\"{email.url_callback}\">Link</a>", email.url_callback)
     return {"message": "Email has been sent"}
 
+
+
 @app.post("/process-json/")
 async def process_json(json_data: dict, background_tasks: BackgroundTasks):
     try:
-        submission = json_data['mautic.form_on_submit'][0]['submission']['results']
-        email_address = submission['nhap_thong_tin_email']
-        phone_number = submission['nhap_thong_tin_sdt']
-        job_position = submission['vui_long_nhap_chuc_vu_cua']
+        submission = json_data['mautic.form_on_submit'][0]['submission']
+        email_address = submission['results']['nhap_thong_tin_email']
+        phone_number = submission['results']['nhap_thong_tin_sdt']
+        job_position = submission['results']['vui_long_nhap_chuc_vu_cua']
+        contact_id=submission['lead']['id']
 
         subject = "Thông tin liên hệ"
         message = f"""
@@ -66,6 +90,10 @@ async def process_json(json_data: dict, background_tasks: BackgroundTasks):
         """
 
         background_tasks.add_task(send_email_background, subject, email_address, message)
+
+
+        call_api_mautic(contact_id=contact_id)
+
         return {"message": "Email has been sent"}
     except KeyError as e:
         raise HTTPException(status_code=400, detail=f"Missing key: {e}")

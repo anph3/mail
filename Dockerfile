@@ -16,6 +16,7 @@ EXPOSE 80
 
 # Define environment variable
 ENV MAIL_PASSWORD=your_app_password
+ENV MAUTIC_KEY=your_mautic_key
 
 # Run app.py when the container launches
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
