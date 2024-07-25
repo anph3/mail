@@ -43,7 +43,7 @@ def call_api_mautic(contact_id: int):
     try:
         url = f"https://mautic.mypt.vn/api/contacts/{contact_id}/edit"
         headers = {
-            "Authorization": os.getenv("MAUTIC_KEY", "") # "Basic YWRtaW46YWU3OWIwOGEyNmY5Yw==",
+            "Authorization": os.getenv("MAUTIC_KEY", ""),
             "Content-Type": "application/json",
             "Cookie": "mautic_device_id=gq1v47mk8jkaabp4wkl9e9z"
         }
